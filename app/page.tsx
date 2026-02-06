@@ -29,15 +29,22 @@ export default function Home() {
   const [stats, setStats] = useState<PineconeStats | null>(null);
   const [isIndexOnline, setIsIndexOnline] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false); // Closed on mobile by default
-  const [isReferencesOpen, setIsReferencesOpen] = useState(true); // Open on desktop by default
+  const [isReferencesOpen, setIsReferencesOpen] = useState(false); // Closed by default, will be set to true on desktop
   const [isMobile, setIsMobile] = useState(false);
   const mainContentRef = useRef<HTMLDivElement>(null);
   const [savedScrollPosition, setSavedScrollPosition] = useState(0);
 
-  // Detect mobile on mount
+  // Detect mobile on mount and set references state
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 1024);
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+      // Set references open on desktop, closed on mobile
+      if (!mobile) {
+        setIsReferencesOpen(true);
+      } else {
+        setIsReferencesOpen(false);
+      }
     };
     checkMobile();
     window.addEventListener('resize', checkMobile);
@@ -176,7 +183,7 @@ export default function Home() {
           />
         </div>
         
-        <div ref={mainContentRef} className="flex-1 flex flex-col overflow-hidden min-w-0 h-full">
+        <div ref={mainContentRef} className="flex-1 flex flex-col overflow-hidden min-w-0 h-full relative">
           <main className="flex-1 overflow-y-auto p-4 lg:p-10 max-w-6xl mx-auto w-full min-w-0 pb-24 lg:pb-0">
             {/* Header Section - Hidden on mobile */}
             <div className="mb-6 lg:mb-10 hidden lg:block">
@@ -219,6 +226,14 @@ export default function Home() {
             {error && (
               <div className="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-lg text-red-400">
                 {error}
+              </div>
+            )}
+
+            {!response && !isLoading && !error && (
+              <div className="flex items-center justify-center absolute left-0 right-0 lg:relative lg:flex" style={{ top: '56px', bottom: '80px', height: 'calc(100vh - 136px)' }}>
+                <p className="text-white text-sm lg:text-base font-medium opacity-60" style={{ fontFamily: 'var(--font-poppins), Poppins, sans-serif' }}>
+                  What would you like to search?
+                </p>
               </div>
             )}
 
