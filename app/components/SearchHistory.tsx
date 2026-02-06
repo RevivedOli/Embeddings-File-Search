@@ -55,7 +55,7 @@ export default function SearchHistory({ onSelectQuery, onAddToHistory, isMobile 
     return () => {
       delete (window as any).addSearchToHistory;
     };
-  }, [history]);
+  }, [history, addToHistory]);
 
   const formatTime = (timestamp: number) => {
     const date = new Date(timestamp);

@@ -75,7 +75,7 @@ export default function IntroductionModal() {
               <div>
                 <h4 className="text-lg font-semibold text-yellow-400 mb-2">Important Disclaimer</h4>
                 <p className="text-yellow-200/90 text-sm leading-relaxed">
-                  <strong className="text-yellow-300">The presence of a person's name in these investigative files does not imply wrongdoing.</strong> These documents contain unverified claims, redacted information, and materials that may include disputed or sensationalist content as noted by the DOJ itself. All information should be verified through official sources.
+                  <strong className="text-yellow-300">The presence of a person&apos;s name in these investigative files does not imply wrongdoing.</strong> These documents contain unverified claims, redacted information, and materials that may include disputed or sensationalist content as noted by the DOJ itself. All information should be verified through official sources.
                 </p>
               </div>
             </div>
