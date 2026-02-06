@@ -8,11 +8,17 @@ interface QuestionInputProps {
   onSubmit: (question: string) => void;
   isLoading: boolean;
   loadingStage: LoadingStage;
+  value?: string;
+  onChange?: (value: string) => void;
 }
 
-export default function QuestionInput({ onSubmit, isLoading, loadingStage }: QuestionInputProps) {
-  const [question, setQuestion] = useState("");
+export default function QuestionInput({ onSubmit, isLoading, loadingStage, value, onChange }: QuestionInputProps) {
+  const [internalQuestion, setInternalQuestion] = useState("");
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  
+  // Use controlled value if provided, otherwise use internal state
+  const question = value !== undefined ? value : internalQuestion;
+  const setQuestion = onChange || setInternalQuestion;
 
   useEffect(() => {
     inputRef.current?.focus();

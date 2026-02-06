@@ -7,9 +7,10 @@ interface ReferencesPanelProps {
   sources: Source[];
   isOpen?: boolean;
   onToggle?: () => void;
+  isMobile?: boolean;
 }
 
-export default function ReferencesPanel({ sources, isOpen = true, onToggle }: ReferencesPanelProps) {
+export default function ReferencesPanel({ sources, isOpen = true, onToggle, isMobile = false }: ReferencesPanelProps) {
   const [expandedSource, setExpandedSource] = useState<string | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -69,12 +70,18 @@ ${source.text}`;
         {onToggle && (
           <button
             onClick={onToggle}
-            className="lg:hidden text-purple-400 hover:text-purple-300"
-            aria-label="Close references"
+            className="text-purple-400 hover:text-purple-300 transition-colors"
+            aria-label={isMobile ? "Close references" : "Close references"}
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            {isMobile ? (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            )}
           </button>
         )}
       </div>

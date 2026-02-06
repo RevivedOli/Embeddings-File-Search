@@ -7,6 +7,7 @@ import SummaryBox from "./components/SummaryBox";
 import ReferencesPanel from "./components/ReferencesPanel";
 import SearchHistory from "./components/SearchHistory";
 import RelatedQuestions from "./components/RelatedQuestions";
+import IntroductionModal from "./components/IntroductionModal";
 import { type QueryResponse } from "@/lib/schemas";
 import { parseQueryFromUrl } from "@/lib/utils";
 
@@ -28,7 +29,7 @@ export default function Home() {
   const [stats, setStats] = useState<PineconeStats | null>(null);
   const [isIndexOnline, setIsIndexOnline] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false); // Closed on mobile by default
-  const [isReferencesOpen, setIsReferencesOpen] = useState(true);
+  const [isReferencesOpen, setIsReferencesOpen] = useState(true); // Open on desktop by default
   const [isMobile, setIsMobile] = useState(false);
   const mainContentRef = useRef<HTMLDivElement>(null);
   const [savedScrollPosition, setSavedScrollPosition] = useState(0);
@@ -132,8 +133,9 @@ export default function Home() {
 
   return (
     <div className="h-screen bg-[#0a0a0a] flex flex-col overflow-hidden">
+      <IntroductionModal />
       {/* Mobile Header */}
-      <header className="lg:hidden flex-shrink-0 z-50 bg-[#0a0a0a] border-b border-purple-800/20 px-4 py-3 flex items-center justify-between">
+      <header className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-[#0a0a0a] border-b border-purple-800/20 px-4 py-3 flex items-center justify-between">
         <button
           onClick={() => setIsHistoryOpen(true)}
           className="p-2 text-purple-400 hover:text-purple-300 transition-colors"
@@ -155,7 +157,7 @@ export default function Home() {
         </button>
       </header>
 
-      <div className="flex flex-1 overflow-hidden min-w-0 h-full">
+      <div className="flex flex-1 overflow-hidden min-w-0 h-full pt-14 lg:pt-0">
         {/* Search History - Desktop sidebar (always visible), Mobile fullscreen (when opened) */}
         <div className={`
           ${isHistoryOpen && isMobile
@@ -175,7 +177,7 @@ export default function Home() {
         </div>
         
         <div ref={mainContentRef} className="flex-1 flex flex-col overflow-hidden min-w-0 h-full">
-          <main className="flex-1 overflow-y-auto p-4 lg:p-10 max-w-6xl mx-auto w-full min-w-0">
+          <main className="flex-1 overflow-y-auto p-4 lg:p-10 max-w-6xl mx-auto w-full min-w-0 pb-24 lg:pb-0">
             {/* Header Section - Hidden on mobile */}
             <div className="mb-6 lg:mb-10 hidden lg:block">
               <h1 className="text-5xl font-bold text-white mb-3 tracking-tight">
@@ -209,6 +211,8 @@ export default function Home() {
                 onSubmit={handleSubmit}
                 isLoading={isLoading}
                 loadingStage={loadingStage}
+                value={question}
+                onChange={setQuestion}
               />
             </div>
 
@@ -231,57 +235,69 @@ export default function Home() {
         </div>
 
         {/* References Panel - Collapsible */}
-        <div 
-          id="references-panel"
-          className={`
-          ${isReferencesOpen ? 'w-full lg:w-[420px]' : 'w-0 lg:w-12'} 
-          ${isReferencesOpen ? 'flex' : 'hidden lg:flex'}
-          flex-shrink-0
-          h-full
-          transition-all duration-300 overflow-hidden
-          border-l border-purple-800/20
-        `}>
-          <ReferencesPanel 
-            sources={response?.sources || []} 
-            isOpen={isReferencesOpen}
-            onToggle={() => {
-              if (isMobile) {
-                if (!isReferencesOpen) {
-                  // Opening: Save current scroll position and scroll references to top
-                  if (mainContentRef.current) {
-                    setSavedScrollPosition(mainContentRef.current.scrollTop);
-                  }
-                  setIsReferencesOpen(true);
-                  // Scroll references to top after opening
-                  setTimeout(() => {
-                    const panel = document.getElementById('references-panel');
-                    if (panel) {
-                      panel.scrollTop = 0;
-                    }
-                  }, 100);
-                } else {
-                  // Closing: Restore scroll position
-                  setIsReferencesOpen(false);
-                  setTimeout(() => {
+        {isReferencesOpen ? (
+          <div 
+            id="references-panel"
+            className="w-full lg:w-[420px] flex flex-shrink-0 h-full transition-all duration-300 overflow-hidden border-l border-purple-800/20"
+          >
+            <ReferencesPanel 
+              sources={response?.sources || []} 
+              isOpen={isReferencesOpen}
+              isMobile={isMobile}
+              onToggle={() => {
+                if (isMobile) {
+                  if (!isReferencesOpen) {
+                    // Opening: Save current scroll position and scroll references to top
                     if (mainContentRef.current) {
-                      mainContentRef.current.scrollTop = savedScrollPosition;
+                      setSavedScrollPosition(mainContentRef.current.scrollTop);
                     }
-                  }, 100);
+                    setIsReferencesOpen(true);
+                    // Scroll references to top after opening
+                    setTimeout(() => {
+                      const panel = document.getElementById('references-panel');
+                      if (panel) {
+                        panel.scrollTop = 0;
+                      }
+                    }, 100);
+                  } else {
+                    // Closing: Restore scroll position
+                    setIsReferencesOpen(false);
+                    setTimeout(() => {
+                      if (mainContentRef.current) {
+                        mainContentRef.current.scrollTop = savedScrollPosition;
+                      }
+                    }, 100);
+                  }
+                } else {
+                  setIsReferencesOpen(!isReferencesOpen);
                 }
-              } else {
-                setIsReferencesOpen(!isReferencesOpen);
-              }
-            }}
-          />
-        </div>
+              }}
+            />
+          </div>
+        ) : (
+          <div className="hidden lg:flex flex-shrink-0 w-12 h-full border-l border-purple-800/20 bg-gray-900/30 items-center justify-center">
+            <button
+              onClick={() => setIsReferencesOpen(true)}
+              className="p-2 text-purple-400 hover:text-purple-300 transition-colors rotate-180"
+              aria-label="Open references"
+              title="Open References"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Mobile Input - Fixed at bottom */}
-      <div className="lg:hidden flex-shrink-0 bg-[#0a0a0a] border-t border-purple-800/20 p-4 z-40">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-[#0a0a0a] border-t border-purple-800/20 p-4 z-40">
         <QuestionInput
           onSubmit={handleSubmit}
           isLoading={isLoading}
           loadingStage={loadingStage}
+          value={question}
+          onChange={setQuestion}
         />
       </div>
     </div>

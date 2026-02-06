@@ -18,12 +18,41 @@ export default function SummaryBox({ response, question }: SummaryBoxProps) {
     return null;
   }
 
-  const handleShare = () => {
+  const handleShare = async () => {
     const queryToShare = question || "";
     const url = generateShareableUrl(queryToShare, window.location.origin);
-    navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    
+    try {
+      // Try modern clipboard API first
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(url);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } else {
+        // Fallback for older browsers or non-HTTPS contexts
+        const textArea = document.createElement("textarea");
+        textArea.value = url;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        } catch (err) {
+          console.error('Failed to copy:', err);
+          // Last resort: show the URL in an alert
+          alert(`Share this URL:\n${url}`);
+        }
+        document.body.removeChild(textArea);
+      }
+    } catch (err) {
+      console.error('Failed to copy to clipboard:', err);
+      // Fallback: show the URL in an alert
+      alert(`Share this URL:\n${url}`);
+    }
   };
 
   const handleExport = () => {
@@ -44,19 +73,33 @@ export default function SummaryBox({ response, question }: SummaryBoxProps) {
         <div className="flex items-center gap-2">
             <button
               onClick={handleShare}
-              className="px-4 py-2 text-sm bg-purple-600/20 hover:bg-purple-600/30 
+              className="p-2.5 bg-purple-600/20 hover:bg-purple-600/30 
                        text-purple-300 rounded-lg border border-purple-600/30 
                        transition-all duration-300 hover:glow-purple-subtle"
+              title={copied ? "Copied!" : "Share"}
+              aria-label={copied ? "Copied!" : "Share"}
             >
-              {copied ? "Copied!" : "Share"}
+              {copied ? (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                </svg>
+              )}
             </button>
             <button
               onClick={handleExport}
-              className="px-4 py-2 text-sm bg-purple-600/20 hover:bg-purple-600/30 
+              className="p-2.5 bg-purple-600/20 hover:bg-purple-600/30 
                        text-purple-300 rounded-lg border border-purple-600/30 
                        transition-all duration-300 hover:glow-purple-subtle"
+              title="Export"
+              aria-label="Export"
             >
-              Export
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
             </button>
           </div>
         </div>

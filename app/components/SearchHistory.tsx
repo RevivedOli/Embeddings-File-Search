@@ -12,7 +12,6 @@ interface SearchHistoryProps {
 
 export default function SearchHistory({ onSelectQuery, onAddToHistory, isMobile = false, onClose }: SearchHistoryProps) {
   const [history, setHistory] = useState<SearchHistoryItem[]>([]);
-  const [isOpen, setIsOpen] = useState(true); // Always open by default, parent controls visibility
 
   useEffect(() => {
     // Load from localStorage
@@ -76,8 +75,7 @@ export default function SearchHistory({ onSelectQuery, onAddToHistory, isMobile 
     <div className={`
       ${isMobile ? 'bg-[#0a0a0a]' : 'bg-gray-900/30'} 
       border-r border-purple-800/20 
-      ${isMobile ? 'w-full h-full flex flex-col overflow-hidden' : 'flex flex-col h-full overflow-hidden transition-all duration-300'}
-      ${isMobile ? 'w-full' : (isOpen ? "w-80" : "w-12")}
+      ${isMobile ? 'w-full h-full flex flex-col overflow-hidden' : 'flex flex-col h-full overflow-hidden w-80'}
       flex-shrink-0
     `}>
       <div className="p-4 lg:p-6 border-b border-purple-800/20 flex items-center justify-between flex-shrink-0">
@@ -95,7 +93,7 @@ export default function SearchHistory({ onSelectQuery, onAddToHistory, isMobile 
               Clear
             </button>
           )}
-          {isMobile ? (
+          {isMobile && (
             <button
               onClick={onClose}
               className="text-purple-400 hover:text-purple-300 transition-colors p-2"
@@ -104,13 +102,6 @@ export default function SearchHistory({ onSelectQuery, onAddToHistory, isMobile 
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
-            </button>
-          ) : (
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="text-purple-400 hover:text-purple-300 transition-colors"
-            >
-              {isOpen ? "←" : "→"}
             </button>
           )}
         </div>

@@ -28,7 +28,28 @@ A modern, AI-powered investigative tool for querying the Epstein files. Built wi
 npm install
 ```
 
-### 2. Environment Variables
+### 2. Run Development Server
+
+**For local development (localhost only):**
+```bash
+npm run dev
+```
+
+**For mobile testing on local network:**
+```bash
+npm run dev:network
+```
+
+Then:
+1. Find your computer's local IP address:
+   - **macOS/Linux**: Run `ifconfig | grep "inet " | grep -v 127.0.0.1` or check System Preferences > Network
+   - **Windows**: Run `ipconfig` and look for IPv4 Address
+2. On your mobile device, connect to the same Wi-Fi network as your computer
+3. Open your mobile browser and navigate to `http://YOUR_IP_ADDRESS:3000` (e.g., `http://192.168.1.100:3000`)
+
+**Note**: Make sure your firewall allows incoming connections on port 3000.
+
+### 3. Environment Variables
 
 Create a `.env.local` file in the root directory with the following variables:
 
