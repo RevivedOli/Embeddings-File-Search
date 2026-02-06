@@ -89,7 +89,7 @@ export default function IntroductionModal() {
           </div>
 
           {/* Accept Button */}
-          <div className="flex justify-end">
+          <div className="flex justify-center">
             <button
               onClick={handleAccept}
               className="w-full lg:w-auto px-6 lg:px-8 py-3 bg-purple-600 hover:bg-purple-700 
